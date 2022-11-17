@@ -21,7 +21,7 @@ public class Home {
 	static Map<Integer, Integer> productById = new HashMap<>();
 	static User user = null;
 	static List<Map<String, Integer>> cartList = new ArrayList<>();; // cart table values;
-
+	static List<Map<String, Integer>> OrderList = new ArrayList<>();
 	public void showMenu() {
 		System.out.println("1)Registration \n2)Login \n3)Exit");
 		System.out.print("Please select option (1/2/3) : ");
@@ -91,7 +91,9 @@ public class Home {
 			showCart();
 		case 4:
 			user = null;
-			cartList.clear(); // after logout by current user cart list empty 
+			// after logout by current user cart list empty 
+			cartList.clear();
+			OrderList.clear();
 			showMenu();
 			break;
 		default:
@@ -101,7 +103,39 @@ public class Home {
 	}
 
 	private void showOrderHistory() {
-		// add logic to show orders table2
+		System.out.println("--------------------Order List-------------------");
+		Connection con = DBUtil.getconection();
+	try {String query="select * from orders where user_id=? ";
+		PreparedStatement pst=	con.prepareStatement(query);
+		pst.setInt(1,user.getId());
+		ResultSet rs=pst.executeQuery();
+		if (rs != null && rs.next()) {
+			Map<String, Integer> map = new HashMap<>();
+			map.put("productId", rs.getInt(1));
+			map.put("qty", rs.getInt(2));
+			map.put("User_Id",rs.getInt(3) );
+			map.put("amount", rs.getInt(4));
+			OrderList.add(map);
+		} else {
+			System.out.println("Order List is Empty. Please order the product");
+		}
+		
+		System.out.println("|Product Name\t|Price\t|Qty\t|Amount");
+		for (Map<String, Integer> order : OrderList) {
+			Product prod = productList.get(productById.get(order.get("productId"))); // ....
+			System.out.println("|" + prod.getProductName() + "\t|" + prod.getProductPrice() + "\t|"
+					+ order.get("qty") + "\t|" + order.get("amount"));
+		}
+		
+		
+		
+		
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+		
 	}
 
 	private void showCart() {
